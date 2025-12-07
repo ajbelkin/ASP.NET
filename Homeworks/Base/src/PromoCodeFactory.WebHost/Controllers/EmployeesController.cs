@@ -55,7 +55,57 @@ namespace PromoCodeFactory.WebHost.Controllers
             if (employee == null)
                 return NotFound();
 
-            var employeeModel = new EmployeeResponse()
+            return GetEmployeeResponse(employee);
+        }
+
+        /// <summary>
+        /// Создать запись о сотруднике
+        /// </summary>
+        /// <returns></returns>
+        [HttpPost("Create")]
+        public async Task<ActionResult<EmployeeResponse>> CreateEmployeeAsync(Employee employee)
+        {
+            if(!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+
+            var item = await _employeeRepository.CreateAsync(employee);
+
+            return GetEmployeeResponse(item); 
+        }
+
+        /// <summary>
+        /// Обновить запись о сотруднике
+        /// </summary>
+        /// <returns></returns>
+        [HttpPost("Update")]
+        public async Task<ActionResult<EmployeeResponse>> UpdateEmployeeAsync(Employee employee)
+        {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+
+            var item = await _employeeRepository.UpdateAsync(employee);
+
+            return GetEmployeeResponse(item);
+        }
+
+        /// <summary>
+        /// Удалить запись о сотруднике
+        /// </summary>
+        /// <returns></returns>
+        [HttpPost("Delete")]
+        public async Task<IActionResult> DeleteEmployeeAsync(Guid id)
+        {
+            var item = await _employeeRepository.DeleteAsync(id);
+
+            return Ok();
+        }
+
+        private static EmployeeResponse GetEmployeeResponse(Employee employee)
+            => new EmployeeResponse()
             {
                 Id = employee.Id,
                 Email = employee.Email,
@@ -67,8 +117,5 @@ namespace PromoCodeFactory.WebHost.Controllers
                 FullName = employee.FullName,
                 AppliedPromocodesCount = employee.AppliedPromocodesCount
             };
-
-            return employeeModel;
-        }
     }
 }
