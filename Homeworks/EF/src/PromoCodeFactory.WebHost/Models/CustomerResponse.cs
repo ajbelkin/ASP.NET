@@ -1,15 +1,35 @@
-﻿using System;
+﻿using PromoCodeFactory.Core.Domain.PromoCodeManagement;
+using System;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace PromoCodeFactory.WebHost.Models
 {
     public class CustomerResponse
     {
+        public CustomerResponse()
+        {
+
+        }
+
+        public CustomerResponse(Customer customer)
+        {
+            Id = customer.Id;
+            Email = customer.Email;
+            FirstName = customer.FirstName;
+            LastName = customer.LastName;
+            Preferences = customer.Preferences.Select(x => new PreferenceResponse()
+            {
+                Id = x.Id,
+                Name = x.Name
+            }).ToList();
+        }
+
         public Guid Id { get; set; }
         public string FirstName { get; set; }
         public string LastName { get; set; }
         public string Email { get; set; }
-        //TODO: Добавить список предпочтений
+        public List<PreferenceResponse> Preferences { get; set; }
         public List<PromoCodeShortResponse> PromoCodes { get; set; }
     }
 }
