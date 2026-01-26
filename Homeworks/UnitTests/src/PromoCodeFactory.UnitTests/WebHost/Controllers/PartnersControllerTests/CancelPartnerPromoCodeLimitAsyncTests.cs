@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Threading.Tasks;
 using AutoFixture;
 using AutoFixture.AutoMoq;
@@ -24,28 +23,6 @@ namespace PromoCodeFactory.UnitTests.WebHost.Controllers.Partners
             _partnersRepositoryMock = fixture.Freeze<Mock<IRepository<Partner>>>();
             _partnersController = fixture.Build<PartnersController>().OmitAutoProperties().Create();
         }
-
-        public Partner CreateBasePartner()
-        {
-            var partner = new Partner()
-            {
-                Id = Guid.Parse("7d994823-8226-4273-b063-1a95f3cc1df8"),
-                Name = "Суперигрушки",
-                IsActive = true,
-                PartnerLimits = new List<PartnerPromoCodeLimit>()
-                {
-                    new PartnerPromoCodeLimit()
-                    {
-                        Id = Guid.Parse("e00633a5-978a-420e-a7d6-3e1dab116393"),
-                        CreateDate = new DateTime(2020, 07, 9),
-                        EndDate = new DateTime(2020, 10, 9),
-                        Limit = 100
-                    }
-                }
-            };
-
-            return partner;
-        }
         
         [Fact]
         public async Task CancelPartnerPromoCodeLimitAsync_PartnerIsNotFound_ReturnsNotFound()
@@ -69,9 +46,21 @@ namespace PromoCodeFactory.UnitTests.WebHost.Controllers.Partners
         {
             // Arrange
             var partnerId = Guid.Parse("def47943-7aaf-44a1-ae21-05aa4948b165");
-            var partner = CreateBasePartner();
-            partner.IsActive = false;
-            
+            var partner = new Fixture()
+            .Build<Partner>()
+            .With(x => x.Id, partnerId)
+            .With(x => x.IsActive, false)
+            .With(x => x.PartnerLimits,
+            [
+                new PartnerPromoCodeLimit()
+                    {
+                        CreateDate = new DateTime(2020, 07, 9),
+                        EndDate = new DateTime(2020, 10, 9),
+                        Limit = 100
+                    }
+            ])
+            .Create();
+
             _partnersRepositoryMock.Setup(repo => repo.GetByIdAsync(partnerId))
                 .ReturnsAsync(partner);
 
